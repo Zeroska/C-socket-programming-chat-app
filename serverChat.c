@@ -30,14 +30,29 @@ void saveTofile(struct User user){
 }
 
 //This would return 401 for "Can't find user" and 1 for 
+
 int readDatabase(struct User user){
     FILE *p = fopen("database.txt","r");
+    struct User temp;
     if (p == NULL){
         printf("File has something wrong, please check!");
+        return -1;
     }else{
         //Search for the right infomation
-
+        //What the fuck should I use now
+        while(1){
+            fscanf(p,"user:%s\npassword:%s",temp.name,temp.password);
+            //found it
+            if((strcmp(user.name,temp.name) == 0) && (strcmp(user.password,temp.password) == 0)){
+                break; //kinda stupid, but second thought this is clever because you don't need to loop to end of the file
+            }
+            else{
+                return 401;
+            }
+        }
     }
+    fclose(p);
+    return 1;
 }
 
 // void authenticate(){
@@ -82,17 +97,22 @@ int main(void){
         char clientSend[MAX] = {0};
         //accept user input pass and username
         //should do a while loops here 
-        
+
         read(connfd, user.name, MAX);
         read(connfd, user.password, MAX);
         //Find it in the database
-        if(readDatabase(user) == 401){
-            send(connfd, "401", sizeof "401",0);   
+        if(readDatabase(user) == 401){ 
+            printf("New Register\n");
+            send(connfd, "401", sizeof "401",0);
+            printf("AAAAAAAA\n");
+        }else{
+            printf("WTF\n");
         }
         
         //save it to database
         saveTofile(user);
-        //After accept I'll fork it 
+        //After accept I'll fork it
+        printf("User goes first\n");
         read(connfd, clientSend, MAX);
         //recv(connfd,clientSend,strlen(clientSend),0);
         fprintf(stdout,"%s: %s\n", user.name,clientSend);

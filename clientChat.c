@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
         memset(password, 0, sizeof password);
         //if server response is 401 then just keep asking for password and username
         //after 3 try exit the program
-        recv(sockfd, code, strlen(code),0);
+        read(sockfd,code, MAX);
         //THIS IS A CRIME BY NOT SPLIT THESE THING TO ITS OWN FUNCTION ...
         if(strcmp(code, "401")==0){
 
@@ -87,14 +87,14 @@ int main(int argc, char *argv[]){
                 fgetstr(password, sizeof password,stdin);
                 printf("Ensure your password: ");
                 fgetstr(passChecker, sizeof passChecker, stdin);
-                memset(passChecker,0,strlen(passChecker));
             }while(strcmp(password,passChecker) != 0);
 
             send(sockfd,userName,strlen(userName),0);
             send(sockfd,password, strlen(password),0);
-            authenticated = 1;
+            
             printf("**** Authenticated ****\n");
         }
+        authenticated = 1;
     }while(authenticated != 1);
     printf("[*] Welcome to Lamb Chat - by Zeroska\n");
 
