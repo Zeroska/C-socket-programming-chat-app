@@ -4,7 +4,7 @@ To compile this thing just type 2 of this, I code this specific for UNIX only (U
 So windows user, I'm so sorry 
 
 [FOR CLIENT]
-gcc -o lamb -g -Wall clientChat.c \n
+gcc -o lamb -g -Wall clientChat.c <br>
 [FOR SERVER]
 gcc -o server -g -Wall serverChat.c
 
