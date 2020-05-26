@@ -27,6 +27,7 @@ int main(int argc, char *argv[]){
     int sockfd, n;
     int counter = 0;
     int authenticated = 0;
+    int userChoice = 0;
     char code[MAX] = {0};
     char userName[MAX] = {0}; 
     char password[MAX] = {0};
@@ -78,24 +79,34 @@ int main(int argc, char *argv[]){
         read(sockfd,code, MAX);
         //THIS IS A CRIME BY NOT SPLIT THESE THING TO ITS OWN FUNCTION ...
         if(strcmp(code, "401")==0){
-
-            do{
-                printf("[*]First Register\n");
-                printf("Enter you name: ");
-                fgetstr(userName,sizeof userName, stdin);
-                printf("Enter your password: ");
-                fgetstr(password, sizeof password,stdin);
-                printf("Ensure your password: ");
-                fgetstr(passChecker, sizeof passChecker, stdin);
-            }while(strcmp(password,passChecker) != 0);
-
-            send(sockfd,userName,strlen(userName),0);
-            send(sockfd,password, strlen(password),0);
             
-            printf("**** Authenticated ****\n");
+            printf("You don't have an account yet, would you like to have one\nYes(1) or No(0): ");
+            scanf("%d",&userChoice);
+            fflush(stdin);
+
+            if(userChoice == 1){     
+                do{
+                    printf("[*] Sign Up\n");
+                    printf("Enter you name: ");
+                    fgetstr(userName,sizeof userName, stdin);
+                    printf("Enter your password: ");
+                    fgetstr(password, sizeof password,stdin);
+                    printf("Ensure your password: ");
+                    fgetstr(passChecker, sizeof passChecker, stdin);
+                }while(strcmp(password,passChecker) != 0);
+
+                //send user register information
+                send(sockfd,userName,strlen(userName),0);
+                send(sockfd,password, strlen(password),0);
+                printf("**** Authenticated ****\n");
+            }
+            else{
+                printf("Should create an account my friend\n");    
+                exit(1);
+            }
         }
         authenticated = 1;
-    }while(authenticated != 1);
+    }while(authenticated == 0);
     printf("[*] Welcome to Lamb Chat - by Zeroska\n");
 
     //loop for the client chat, send and recv from the server
