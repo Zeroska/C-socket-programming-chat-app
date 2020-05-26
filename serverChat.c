@@ -64,6 +64,7 @@ int main(void){
     while(1){
         char serverReponse[MAX] = {0};
         char clientSend[MAX] = {0};
+        //Check authentication
         
         read(connfd, clientSend, MAX);
         //recv(connfd,clientSend,strlen(clientSend),0);

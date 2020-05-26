@@ -5,6 +5,7 @@
 #include "netinet/in.h"
 #include "arpa/inet.h"
 #include "string.h"
+#include "utilities.h"
 
 #define MAX 1024
 //I w
@@ -21,19 +22,6 @@
 
 //     }
 // }
-
-char *fgetstr(char *string, int n, FILE *stream){
-    char* result;
-    result = fgets(string, n ,stream);
-    if(!result){
-        return result;
-    }
-    if(string[strlen(string) -1] == '\n'){
-        string[strlen(string) -1] = 0;
-    }
-    return string;
-}
-
 
 int main(int argc, char *argv[]){
     
@@ -76,10 +64,11 @@ int main(int argc, char *argv[]){
             exit(1);
         }
         printf("Enter you username: ");
-        scanf("%s", userName);
+        fgetstr(userName, sizeof userName, stdin);
         printf("Enter your password: ");
-        scanf("%s",password);
+        fgetstr(password, sizeof password, stdin);
         counter++;
+
         //send userName and password to the server for authenticate
         send(sockfd, userName, strlen(userName),0);
         send(sockfd, password, strlen(password), 0);
@@ -90,16 +79,18 @@ int main(int argc, char *argv[]){
         recv(sockfd, code, strlen(code),0);
         //THIS IS A CRIME BY NOT SPLIT THESE THING TO ITS OWN FUNCTION ...
         if(strcmp(code, "401")==0){
+
             do{
                 printf("[*]Register\n");
                 printf("Enter you name: ");
-                scanf("%s",userName);
+                fgetstr(userName,sizeof userName, stdin);
                 printf("Enter your password: ");
-                scanf("%s",password);
+                fgetstr(password, sizeof password,stdin);
                 printf("Ensure your password: ");
-                scanf("%s",passChecker);
+                fgetstr(passChecker, sizeof passChecker, stdin);
                 memset(passChecker,0,strlen(passChecker));
             }while(strcmp(password,passChecker) != 0);
+
             send(sockfd,userName,strlen(userName),0);
             send(sockfd,password, strlen(password),0);
             authenticated = 1;
