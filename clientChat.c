@@ -1,14 +1,13 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "sys/socket.h"
-#include "sys/types.h"
-#include "netinet/in.h"
-#include "arpa/inet.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
 #include "utilities.h"
 
 #define MAX 1024
-//I w
 
 
 //This is the way to enter password
@@ -70,10 +69,10 @@ int main(int argc, char *argv[]){
         counter++;
 
         //send userName and password to the server for authenticate
-        send(sockfd, userName, strlen(userName),0);
-        send(sockfd, password, strlen(password), 0);
-        memset(userName, 0, strlen(userName));
-        memset(password, 0, strlen(password));
+        send(sockfd, userName, sizeof userName,0);
+        send(sockfd, password, sizeof password, 0);
+        memset(userName, 0, sizeof userName);
+        memset(password, 0, sizeof password);
         //if server response is 401 then just keep asking for password and username
         //after 3 try exit the program
         recv(sockfd, code, strlen(code),0);
@@ -81,7 +80,7 @@ int main(int argc, char *argv[]){
         if(strcmp(code, "401")==0){
 
             do{
-                printf("[*]Register\n");
+                printf("[*]First Register\n");
                 printf("Enter you name: ");
                 fgetstr(userName,sizeof userName, stdin);
                 printf("Enter your password: ");
@@ -94,9 +93,10 @@ int main(int argc, char *argv[]){
             send(sockfd,userName,strlen(userName),0);
             send(sockfd,password, strlen(password),0);
             authenticated = 1;
-            printf("[*] Welcome to Lamb Chat - by Zeroska\n");
+            printf("**** Authenticated ****\n");
         }
     }while(authenticated != 1);
+    printf("[*] Welcome to Lamb Chat - by Zeroska\n");
 
     //loop for the client chat, send and recv from the server
     while(1){
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]){
         if (strcmp(userInput, "!exit") == 0){
             break;
         }
-        printf("Wait for server to reply\n");
+        printf("[*] Wait for server to reply\n");
         //if you want to send without any prior than I think we should have a chekck
         //or a loop in this something
 
