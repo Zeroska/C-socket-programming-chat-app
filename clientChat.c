@@ -15,7 +15,7 @@
 //with public key of the server and send it, only the server can decode it with it RSA private key
 //that would so damn cool, but this isn't python so it won't be easy
 
-
+//[PRIOR]
 // void changeCharToAterisk(){
 //     do{
 
@@ -25,14 +25,14 @@
 int main(int argc, char *argv[]){
     
     int sockfd, n;
+    // set all the bit to 0
     int counter = 0;
     int authenticated = 0;
     int userChoice = 0;
     char code[MAX] = {0};
     char userName[MAX] = {0}; 
     char password[MAX] = {0};
-    char passChecker[MAX] = {0};
-     // set all the bit to 0
+   
     struct sockaddr_in serverAddr; 
     
     if (argc != 2){
@@ -59,6 +59,7 @@ int main(int argc, char *argv[]){
     //If not user will have to register 
     //
     do{
+        //this counter looks redundant
         if (counter == 3){
             printf("You have your chance\n GOOD BYE!");
             exit(1);
@@ -79,29 +80,25 @@ int main(int argc, char *argv[]){
         read(sockfd,code, MAX);
         //THIS IS A CRIME BY NOT SPLIT THESE THING TO ITS OWN FUNCTION ...
         if(strcmp(code, "401")==0){
-            
-            printf("You don't have an account yet, would you like to have one\nYes(1) or No(0): ");
+
+            printf("You don't have an account yet, would you like to have one\nYes(1) or No(Any key): ");
             scanf("%d",&userChoice);
             fflush(stdin);
 
             if(userChoice == 1){     
-                do{
-                    printf("[*] Sign Up\n");
-                    printf("Enter you name: ");
-                    fgetstr(userName,sizeof userName, stdin);
-                    printf("Enter your password: ");
-                    fgetstr(password, sizeof password,stdin);
-                    printf("Ensure your password: ");
-                    fgetstr(passChecker, sizeof passChecker, stdin);
-                }while(strcmp(password,passChecker) != 0);
-
+                printf("[*] Sign Up\n");
+                printf("Enter you name: ");
+                fgetstr(userName,sizeof userName, stdin);
+                printf("Enter your password: ");
+                fgetstr(password, sizeof password,stdin);
                 //send user register information
-                send(sockfd,userName,strlen(userName),0);
-                send(sockfd,password, strlen(password),0);
+                //A note here for my fallen friend, use sizeof instead of strlen
+                send(sockfd,userName,sizeof userName,0);
+                send(sockfd,password, sizeof password,0);
                 printf("**** Authenticated ****\n");
             }
             else{
-                printf("Should create an account my friend\n");    
+                printf("Should create an account my friend\n");   
                 exit(1);
             }
         }
