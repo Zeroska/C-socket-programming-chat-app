@@ -7,7 +7,7 @@
 #include <string.h>
 #include "utilities.h"
 
-#define MAX 1024
+#define MAX_LINE 1024
 
 
 //This is the way to enter password
@@ -29,14 +29,15 @@ int main(int argc, char *argv[]){
     int counter = 0;
     int authenticated = 0;
     int userChoice = 0;
-    char code[MAX] = {0};
-    char userName[MAX] = {0}; 
-    char password[MAX] = {0};
+    char code[MAX_LINE] = {0};
+    char userName[MAX_LINE] = {0}; 
+    char password[MAX_LINE] = {0};
    
     struct sockaddr_in serverAddr; 
-    
+    printf("Date :%s\n", __DATE__ );
+    printf("Time :%s\n", __TIME__ );
     if (argc != 2){
-        printf("ENTER YOUR NAME ./lamb <NAME>\n");
+        printf("./lamb zeroska\nzeroska is the name of creator aka Nguyen Dang Khuong");
         exit(1);
     }
 
@@ -73,14 +74,15 @@ int main(int argc, char *argv[]){
         //send userName and password to the server for authenticate
         send(sockfd, userName, sizeof userName,0);
         send(sockfd, password, sizeof password, 0);
-        memset(userName, 0, sizeof userName);
-        memset(password, 0, sizeof password);
+        
         //if server response is 401 then just keep asking for password and username
         //after 3 try exit the program
-        read(sockfd,code, MAX);
+        printf("[*] Sending information\n");
+        read(sockfd,code, MAX_LINE);
         //THIS IS A CRIME BY NOT SPLIT THESE THING TO ITS OWN FUNCTION ...
         if(strcmp(code, "401")==0){
-
+            memset(userName, 0, sizeof userName);
+            memset(password, 0, sizeof password);
             printf("You don't have an account yet, would you like to have one\nYes(1) or No(Any key): ");
             scanf("%d",&userChoice);
             fflush(stdin);
@@ -108,10 +110,10 @@ int main(int argc, char *argv[]){
 
     //loop for the client chat, send and recv from the server
     while(1){
-        char userInput[MAX] = {0};
-        char serverResponse[MAX] = {0};
+        char userInput[MAX_LINE] = {0};
+        char serverResponse[MAX_LINE] = {0};
 
-        printf("%s > ", argv[1]);
+        printf("%s > ", userName);
 
         
         fgetstr(userInput, sizeof userInput, stdin);
@@ -126,7 +128,7 @@ int main(int argc, char *argv[]){
         //or a loop in this something
 
         //recv(sockfd,serverResponse,strlen(serverResponse),0);
-        read(sockfd, serverResponse, MAX);
+        read(sockfd, serverResponse, MAX_LINE);
         printf("server: %s\n",serverResponse);
     }
     printf("GoodBye, Come again");

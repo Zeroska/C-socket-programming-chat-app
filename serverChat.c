@@ -8,14 +8,14 @@
 #include <arpa/inet.h>
 #include "utilities.h"
 
-#define MAX 1024
-//I want to write the data of the user to a file
-//which is our database
-//cool ehhehehe
+#define MAX_LINE 1024
+#define BACKLOG 10 //how many pending connection will be hold
+
+//user data form
 struct User
 {
-    char name[MAX];
-    char password[MAX];
+    char name[MAX_LINE];
+    char password[MAX_LINE];
 };
 
 void saveTofile(struct User user)
@@ -34,15 +34,36 @@ void saveTofile(struct User user)
     }
 }
 
-void showDatbase(FILE *database){
 
-}
+// void showDatbase(){
+//     FILE *p = fopen("database.txt","r");
+//     if(p == NULL){
+//         printf("Something wrong in database.txt showDatabase()\n");
+//         exit(1);
+//     }else{
+//         //Loop through the File and print all the thing this function found
+//         while(1){
+            
+//         }
+//     }
+// }
 
 //This would return 401 for "Can't find user" and 1 for
 
+void initializeDatabase(){
+    FILE *p = fopen("database.txt","w");
+    if (p == NULL){
+        printf("Something wrong in ADMIN\n");
+        exit(1);
+    }else{
+        fprintf(p,"user:%s\npassword:%s\n","ZEROSKA","KHUONG");
+        fclose(p);
+    }
+}
+
 int searchDatabase(struct User user)
 {
-    FILE *p = fopen("database.txt", "wr");
+    FILE *p = fopen("database.txt", "r");
     struct User temp;
     if (p == NULL)
     {
@@ -52,16 +73,15 @@ int searchDatabase(struct User user)
     else
     {
         //Search for the right infomation
-        //What the fuck should I use now
-        while (1)
+        printf("[*] Searching ...\n");
+        while ((fscanf(p, "user:%s\npassword:%s\n", temp.name, temp.password)) != EOF)
         {
             //I doubt would this work
-            //why here return ??
-            fscanf(p, "user:%s\npassword:%s\n", temp.name, temp.password);
+            //why here return ?   
             //found it
-            printf("%s and %s\n",user.name,temp.name);
             if ((strcmp(user.name, temp.name) == 0) && (strcmp(user.password, temp.password) == 0))
             {
+                printf("[*] Found user in database.txt\n");
                 break; //kinda stupid, but second thought this is clever because you don't need to loop to end of the file
             }
             else
@@ -74,15 +94,35 @@ int searchDatabase(struct User user)
     return 1;
 }
 
-// void authenticate(){
+int isdatabaseExist(){
+    FILE* p = fopen("database.txt","r");
+    if (p == NULL){
+        return 0;
+    }
+    fclose(p);
+    return -1;
+}
 
-// }
+void isUserExit(char *clientSend, int socket){
+    if (strcmp(clientSend, "!exit") == 0)
+    {
+        close(socket);
+        printf("Client disconnected\n");
+    }
+}
 
 int main(void)
 {
     int listenfd, connfd, val;
     struct sockaddr_in serverAddr;
-
+    struct User user;
+    printf("Date :%s\n", __DATE__ );
+    printf("Time :%s\n", __TIME__ );
+    //this function only call one time at all the system, except you delete the database.txt
+    //I will automatic run again
+    if(isdatabaseExist() == 0){
+        initializeDatabase();
+    }
     if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("Something wrong in socket()");
@@ -103,10 +143,9 @@ int main(void)
     //something is happening but =)) the delay function I code is getting bypass everytime
 
     printf("[*] Bind succesful\n");
-    //after bind we will listen for connection, the 2 argument is backlog
-    //
     printf("[*] Server up and running\n");
-    if ((listen(listenfd, 10)) == 0)
+
+    if ((listen(listenfd, BACKLOG)) == 0)
     {
         printf("[*] Server is listening ...\n");
     }
@@ -114,40 +153,36 @@ int main(void)
     //this is where magic happen
     connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
 
-    struct User user;
+    
     //accept user input pass and username
-    read(connfd, user.name, MAX);
-    read(connfd, user.password, MAX);
+    read(connfd, user.name, MAX_LINE);
+    read(connfd, user.password, MAX_LINE);
     //Find it in the database
     if (searchDatabase(user) == 401)
     {
         memset(&user, 0, sizeof user);
         printf("New Register\n");
         send(connfd, "401", sizeof "401", 0);
-        read(connfd, user.name, MAX);
-        read(connfd, user.password, MAX);
+        read(connfd, user.name, MAX_LINE);
+        read(connfd, user.password, MAX_LINE);
         //save it to database
         saveTofile(user);
+        printf("A wild %s appeared\n",user.name);
     }
     else
     {
-        printf("WTF\n");
-    }
-    printf("A wild %s appeared\n",user.name);   
+        printf("Welcome back %s", user.name);
+    } 
     while (1)
     {    
-        char serverReponse[MAX] = {0};
-        char clientSend[MAX] = {0};
+        char serverReponse[MAX_LINE] = {0};
+        char clientSend[MAX_LINE] = {0};
         //After accept I'll fork it
-        read(connfd, clientSend, MAX);
+        read(connfd, clientSend, MAX_LINE);
         //recv(connfd,clientSend,strlen(clientSend),0);
         fprintf(stdout, "%s: %s\n", user.name, clientSend);
-
-        if (strcmp(clientSend, "!exit") == 0)
-        {
-            close(connfd);
-            printf("Client disconnected\n");
-        }
+        isUserExit(clientSend, connfd);
+        
         printf("> "); //this look ridiculous
         fgetstr(serverReponse, sizeof serverReponse, stdin);
         send(connfd, serverReponse, sizeof serverReponse, 0);
