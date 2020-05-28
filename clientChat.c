@@ -5,13 +5,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include "unistd.h"
 #include "utilities.h"
 
+#define CODE_NOT_FOUND "401"
 #define MAX_LINE 1024
 
 int main(int argc, char *argv[]){
     
-    int sockfd, n;
+    int sockfd;
     // set all the bit to 0
     int counter = 0;
     int authenticated = 0;
@@ -42,9 +44,6 @@ int main(int argc, char *argv[]){
         printf("Something wrong in connect()\n");
         exit(1);
     }
-    //after send this infomation, the server will check
-    //If user enter the right password and username -> Ok! time to chat
-    //If not user will have to register 
     
     //Authenticate
     do{
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]){
         printf("[*] Sending information\n");
         read(sockfd,code, MAX_LINE);
 
-        if(strcmp(code, "401")==0){
+        if(strcmp(code, CODE_NOT_FOUND)==0){
             memset(userName, 0, sizeof userName);
             memset(password, 0, sizeof password);
             printf("You don't have an account yet, would you like to have one\nYes(1) or No(Any key): ");
@@ -101,7 +100,6 @@ int main(int argc, char *argv[]){
     while(1){
         char userInput[MAX_LINE] = {0};
         char serverResponse[MAX_LINE] = {0};
-
         printf("%s > ", userName);        
         fgetstr(userInput, sizeof userInput, stdin);
         

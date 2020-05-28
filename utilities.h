@@ -11,17 +11,21 @@
 //this will be pain, a lot of pain my friend
 //Paper about RSA: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 
-void passwordAterisk(){
+
+//Simple CEASAR, to be honest Im wanna do the RSA thing so bad, it would take up so much time
+//If I just do copy, paste and modify that won't be any issues but I don't like thae (I mean I do like that)
+
+
+
+char *ceasarEncrypt(int shift, char *string){
     
 }
 
-char *RSAencrypt(char* string, int key){
-    
-}
-
-char *RSAdecrypt(char *string, int key){
+char *ceasarDecrypt(int unshift, char *string){
 
 }
+
+
 char *fgetstr(char *string, int n, FILE *stream){
     char* result;
     result = fgets(string, n ,stream);

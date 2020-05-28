@@ -10,7 +10,8 @@
 
 #define MAX_LINE 1024
 #define BACKLOG 10 //how many pending connection will be hold
-
+#define CODE_FOUND "1" 
+#define CODE_NOT_FOUND "401"
 //user data struct
 struct User
 {
@@ -20,6 +21,7 @@ struct User
 
 void saveTofile(struct User user)
 {
+    //Before saving using algorithm to encrypt
     FILE *p = fopen("database.txt", "a");
     if (p == NULL)
     {
@@ -50,6 +52,7 @@ int searchDatabase(struct User user)
 {
     FILE *p = fopen("database.txt", "r");
     struct User temp;
+     
     if (p == NULL)
     {
         printf("File has something wrong, please check!\n");
@@ -61,21 +64,16 @@ int searchDatabase(struct User user)
         printf("[*] Searching ...\n");
         while ((fscanf(p, "user:%s\npassword:%s\n", temp.name, temp.password)) != EOF)
         {
-            //this is not working
-            printf("%s and %s\n",user.name, temp.name);
-            printf("%s and %s\n",user.password, temp.password);
-
             if ((strcmp(user.name, temp.name) == 0) && (strcmp(user.password, temp.password) == 0))
             {
                 printf("[*] Found user in database.txt\n");
-                break;
+                fclose(p);
+                return 1;
             }
-            //
         }
-
     }
     fclose(p);
-    return 1;
+    return 401;
 }
 
 int isdatabaseExist(){
@@ -97,7 +95,7 @@ void isUserExit(char *clientSend, int socket){
 
 int main(void)
 {
-    int listenfd, connfd, val;
+    int listenfd, connfd;
     struct sockaddr_in serverAddr;
     struct User user;
     printf("Date :%s\n", __DATE__ );
@@ -118,7 +116,7 @@ int main(void)
     serverAddr.sin_port = htons(1337);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
 
-    //if what's wrong with bind
+    //bind() error handler
     if ((bind(listenfd, (struct sockaddr *)&serverAddr, sizeof serverAddr)) < 0)
     {
         printf("Something wrong in bind()");
@@ -147,7 +145,7 @@ int main(void)
         memset(&user, 0, sizeof user);
         printf("New Register\n");
         //send 401 to inform user not found in the database waiting for register
-        send(connfd, "401", sizeof "401", 0);
+        send(connfd, CODE_NOT_FOUND, sizeof CODE_NOT_FOUND, 0);
         read(connfd, user.name, MAX_LINE);
         read(connfd, user.password, MAX_LINE);
         //save it to database
@@ -156,6 +154,7 @@ int main(void)
     }
     else
     {
+        send(connfd, CODE_FOUND, sizeof CODE_FOUND,0);
         printf("Welcome back %s", user.name);
     } 
     while (1)
