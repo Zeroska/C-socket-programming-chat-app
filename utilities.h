@@ -10,11 +10,16 @@
 
 //this will be pain, a lot of pain my friend
 //Paper about RSA: https://en.wikipedia.org/wiki/RSA_(cryptosystem)
-char* RSAencrypt(char* string, int key){
+
+void passwordAterisk(){
     
 }
 
-char* RSAdecrypt(char *string, int key){
+char *RSAencrypt(char* string, int key){
+    
+}
+
+char *RSAdecrypt(char *string, int key){
 
 }
 char *fgetstr(char *string, int n, FILE *stream){

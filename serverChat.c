@@ -11,7 +11,7 @@
 #define MAX_LINE 1024
 #define BACKLOG 10 //how many pending connection will be hold
 
-//user data form
+//user data struct
 struct User
 {
     char name[MAX_LINE];
@@ -34,22 +34,7 @@ void saveTofile(struct User user)
     }
 }
 
-
-// void showDatbase(){
-//     FILE *p = fopen("database.txt","r");
-//     if(p == NULL){
-//         printf("Something wrong in database.txt showDatabase()\n");
-//         exit(1);
-//     }else{
-//         //Loop through the File and print all the thing this function found
-//         while(1){
-            
-//         }
-//     }
-// }
-
 //This would return 401 for "Can't find user" and 1 for
-
 void initializeDatabase(){
     FILE *p = fopen("database.txt","w");
     if (p == NULL){
@@ -76,19 +61,18 @@ int searchDatabase(struct User user)
         printf("[*] Searching ...\n");
         while ((fscanf(p, "user:%s\npassword:%s\n", temp.name, temp.password)) != EOF)
         {
-            //I doubt would this work
-            //why here return ?   
-            //found it
+            //this is not working
+            printf("%s and %s\n",user.name, temp.name);
+            printf("%s and %s\n",user.password, temp.password);
+
             if ((strcmp(user.name, temp.name) == 0) && (strcmp(user.password, temp.password) == 0))
             {
                 printf("[*] Found user in database.txt\n");
-                break; //kinda stupid, but second thought this is clever because you don't need to loop to end of the file
+                break;
             }
-            else
-            {
-                return 401;
-            }
+            //
         }
+
     }
     fclose(p);
     return 1;
@@ -133,15 +117,14 @@ int main(void)
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(1337);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
+
     //if what's wrong with bind
     if ((bind(listenfd, (struct sockaddr *)&serverAddr, sizeof serverAddr)) < 0)
     {
         printf("Something wrong in bind()");
         exit(1);
     }
-    //To be honest I want to make it has a little bit of delay for the effect that
-    //something is happening but =)) the delay function I code is getting bypass everytime
-
+ 
     printf("[*] Bind succesful\n");
     printf("[*] Server up and running\n");
 
@@ -150,7 +133,7 @@ int main(void)
         printf("[*] Server is listening ...\n");
     }
 
-    //this is where magic happen
+    //connect
     connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
 
     
@@ -158,10 +141,12 @@ int main(void)
     read(connfd, user.name, MAX_LINE);
     read(connfd, user.password, MAX_LINE);
     //Find it in the database
+
     if (searchDatabase(user) == 401)
     {
         memset(&user, 0, sizeof user);
         printf("New Register\n");
+        //send 401 to inform user not found in the database waiting for register
         send(connfd, "401", sizeof "401", 0);
         read(connfd, user.name, MAX_LINE);
         read(connfd, user.password, MAX_LINE);
@@ -177,13 +162,13 @@ int main(void)
     {    
         char serverReponse[MAX_LINE] = {0};
         char clientSend[MAX_LINE] = {0};
-        //After accept I'll fork it
+
         read(connfd, clientSend, MAX_LINE);
-        //recv(connfd,clientSend,strlen(clientSend),0);
         fprintf(stdout, "%s: %s\n", user.name, clientSend);
+        //check user want to exit or not
         isUserExit(clientSend, connfd);
-        
-        printf("> "); //this look ridiculous
+
+        printf("> ");
         fgetstr(serverReponse, sizeof serverReponse, stdin);
         send(connfd, serverReponse, sizeof serverReponse, 0);
         printf("[*] Wait for client to reply\n");
