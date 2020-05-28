@@ -17,12 +17,57 @@
 
 
 
-char *ceasarEncrypt(int shift, char *string){
-    
+char *ceasarEncrypt(int key, char *string){
+    char ch;
+    //But I copy =))) 
+    for(int i = 0; string[i] != '\0'; ++i){
+		ch = string[i];
+		
+		if(ch >= 'a' && ch <= 'z'){
+			ch = ch + key;
+			
+			if(ch > 'z'){
+				ch = ch - 'z' + 'a' - 1;
+			}	
+			string[i] = ch;
+		}
+		else if(ch >= 'A' && ch <= 'Z'){
+			ch = ch + key;
+			
+			if(ch > 'Z'){
+				ch = ch - 'Z' + 'A' - 1;
+			}
+			
+			string[i] = ch;
+		}
+	}
+    return string;
 }
 
-char *ceasarDecrypt(int unshift, char *string){
-
+char *ceasarDecrypt(int key, char *string){
+    char ch;
+	for(int i = 0; string[i] != '\0'; ++i){
+		ch = string[i];
+		
+		if(ch >= 'a' && ch <= 'z'){
+			ch = ch - key;
+			
+			if(ch < 'a'){
+				ch = ch + 'z' - 'a' + 1;
+			}
+			
+			string[i] = ch;
+		}
+		else if(ch >= 'A' && ch <= 'Z'){
+			ch = ch - key;
+			
+			if(ch < 'A'){
+				ch = ch + 'Z' - 'A' + 1;
+			}	
+			string[i] = ch;
+		}
+	}
+    return string;
 }
 
 
